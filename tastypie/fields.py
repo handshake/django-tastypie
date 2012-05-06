@@ -500,10 +500,11 @@ class RelatedField(ApiField):
         if self.self_referential or self.to == 'self':
             self._to_class = cls
 
-    def get_related_resource(self, related_instance):
+    def get_related_resource(self, related_instance=None):
         """
         Instaniates the related resource.
         """
+
         related_resource = self.to_class()
 
         # Fix the ``api_name`` if it's not present.
@@ -511,8 +512,6 @@ class RelatedField(ApiField):
             if self._resource and not self._resource._meta.api_name is None:
                 related_resource._meta.api_name = self._resource._meta.api_name
 
-        # Try to be efficient about DB queries.
-        related_resource.instance = related_instance
         return related_resource
 
     @property
@@ -545,7 +544,7 @@ class RelatedField(ApiField):
 
         return self._to_class
 
-    def dehydrate_related(self, bundle, related_resource):
+    def dehydrate_related(self, bundle, related_resource, related_instance):
         """
         Based on the ``full_resource``, returns either the endpoint or the data
         from ``full_dehydrate`` for the related resource.
@@ -726,7 +725,7 @@ class ToOneField(RelatedField):
 
         self.fk_resource = self.get_related_resource(foreign_obj)
         fk_bundle = Bundle(obj=foreign_obj, request=bundle.request)
-        return self.dehydrate_related(fk_bundle, self.fk_resource)
+        return self.dehydrate_related(fk_bundle, self.fk_resource, foreign_obj)
 
     def hydrate(self, bundle):
         value = super(ToOneField, self).hydrate(bundle)
@@ -817,7 +816,7 @@ class ToManyField(RelatedField):
             m2m_resource = self.get_related_resource(m2m)
             m2m_bundle = Bundle(obj=m2m, request=bundle.request)
             self.m2m_resources.append(m2m_resource)
-            m2m_dehydrated.append(self.dehydrate_related(m2m_bundle, m2m_resource))
+            m2m_dehydrated.append(self.dehydrate_related(m2m_bundle, m2m_resource, m2m))
 
         return m2m_dehydrated
 
