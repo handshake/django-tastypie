@@ -84,7 +84,7 @@ class NoteModelResourceTestCase(TestCase):
         # This is important, as without passing on the ``api_name``, URL
         # reversals will fail. Fakes the instance as ``None``, since for
         # testing purposes, we don't care.
-        related = lur.notes.get_related_resource(None)
+        related = lur.notes.get_related_resource()
         self.assertEqual(related._meta.api_name, 'foo')
 
 
@@ -185,4 +185,3 @@ class SlugBasedResourceTestCase(TestCase):
 
         # Make sure it's gone.
         self.assertRaises(SlugBasedNote.DoesNotExist, SlugBasedNote.objects.get, pk='first-post')
-
