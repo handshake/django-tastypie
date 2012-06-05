@@ -48,7 +48,8 @@ class RelatedResourceTest(TestCase):
 
         resp = resource.post_list(request)
         self.assertEqual(resp.status_code, 201)
-        self.assertEqual(User.objects.get(id=self.user.id).username, 'foobar')
+        self.assertEqual(User.objects.get(id=self.user.id).username, 'testy_mctesterson',
+                         "User resource is GET-only and so should not be updatable")
 
 
 class CategoryResourceTest(TestCase):
