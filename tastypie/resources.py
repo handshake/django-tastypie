@@ -2157,7 +2157,7 @@ class ModelResource(Resource):
         if isinstance(bundle_or_obj, Bundle):
             kwargs[self._meta.detail_uri_name] = bundle_or_obj.obj.pk
         else:
-            kwargs[self._meta.detail_uri_name] = bundle_or_obj.id
+            kwargs[self._meta.detail_uri_name] = bundle_or_obj.pk
 
         return kwargs
 
