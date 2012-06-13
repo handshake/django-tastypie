@@ -81,6 +81,7 @@ class ResourceOptions(object):
     include_absolute_url = False
     always_return_data = False
     collection_name = 'objects'
+    detail_uri_name = 'pk'
 
     def __new__(cls, meta=None):
         overrides = {}
@@ -195,8 +196,7 @@ class Resource(object):
                 callback = getattr(self, view)
                 response = callback(request, *args, **kwargs)
 
-
-                if request.is_ajax():
+                if request.is_ajax() and not response.has_header("Cache-Control"):
                     # IE excessively caches XMLHttpRequests, so we're disabling
                     # the browser cache here.
                     # See http://www.enhanceie.com/ie/bugs.asp for details.
@@ -291,13 +291,19 @@ class Resource(object):
         return [
             url(r"^(?P<resource_name>%s)%s$" % (self._meta.resource_name, trailing_slash()), self.wrap_view('dispatch_list'), name="api_dispatch_list"),
             url(r"^(?P<resource_name>%s)/schema%s$" % (self._meta.resource_name, trailing_slash()), self.wrap_view('get_schema'), name="api_get_schema"),
-            url(r"^(?P<resource_name>%s)/set/(?P<pk_list>\w[\w/;-]*)/$" % self._meta.resource_name, self.wrap_view('get_multiple'), name="api_get_multiple"),
-            url(r"^(?P<resource_name>%s)/(?P<pk>\w[\w/-]*)%s$" % (self._meta.resource_name, trailing_slash()), self.wrap_view('dispatch_detail'), name="api_dispatch_detail"),
+            url(r"^(?P<resource_name>%s)/set/(?P<%s_list>\w[\w/;-]*)/$" % (self._meta.resource_name, self._meta.detail_uri_name), self.wrap_view('get_multiple'), name="api_get_multiple"),
+            url(r"^(?P<resource_name>%s)/(?P<%s>\w[\w/-]*)%s$" % (self._meta.resource_name, self._meta.detail_uri_name, trailing_slash()), self.wrap_view('dispatch_detail'), name="api_dispatch_detail"),
         ]
 
     def override_urls(self):
         """
-        A hook for adding your own URLs or overriding the default URLs.
+        Deprecated. Will be removed by v1.0.0. Please use ``prepend_urls`` instead.
+        """
+        return []
+
+    def prepend_urls(self):
+        """
+        A hook for adding your own URLs or matching before the default URLs.
         """
         return []
 
@@ -310,7 +316,13 @@ class Resource(object):
         when registered with an ``Api`` class or for including directly in
         a URLconf should you choose to.
         """
-        urls = self.override_urls() + self.base_urls()
+        urls = self.prepend_urls()
+
+        if self.override_urls():
+            warnings.warn("'override_urls' is a deprecated method & will be removed by v1.0.0. Please rename your method to ``prepend_urls``.")
+            urls += self.override_urls()
+
+        urls += self.base_urls()
         urlpatterns = patterns('',
             *urls
         )
@@ -547,7 +559,7 @@ class Resource(object):
         # Check to see if they should be throttled.
         if self._meta.throttle.should_be_throttled(identifier):
             # Throttle limit exceeded.
-            raise ImmediateHttpResponse(response=http.HttpForbidden())
+            raise ImmediateHttpResponse(response=http.HttpTooManyRequests())
 
     def log_throttled_access(self, request):
         """
@@ -600,32 +612,28 @@ class Resource(object):
 
     # URL-related methods.
 
-    def get_resource_uri(self, bundle_or_obj):
+    def detail_uri_kwargs(self, bundle_or_obj):
         """
         This needs to be implemented at the user level.
 
-        A call to ``reverse()`` should be all that would be needed::
-
-            from django.core.urlresolvers import reverse
-
-            def get_resource_uri(self, bundle):
-                return reverse("api_dispatch_detail", kwargs={
-                    'resource_name': self._meta.resource_name,
-                    'pk': bundle.data['id'],
-                })
-
-        If you're using the :class:`~tastypie.api.Api` class to group your
-        URLs, you also need to pass the ``api_name`` together with the other
-        kwargs.
+        Given a ``Bundle`` or an object, it returns the extra kwargs needed to
+        generate a detail URI.
 
         ``ModelResource`` includes a full working version specific to Django's
         ``Models``.
         """
         raise NotImplementedError()
 
-    def get_resource_list_uri(self):
+    def resource_uri_kwargs(self, bundle_or_obj=None):
         """
-        Returns a URL specific to this resource's list endpoint.
+        Builds a dictionary of kwargs to help generate URIs.
+
+        Automatically provides the ``Resource.Meta.resource_name`` (and
+        optionally the ``Resource.Meta.api_name`` if populated by an ``Api``
+        object).
+
+        If the ``bundle_or_obj`` argument is provided, it calls
+        ``Resource.detail_uri_kwargs`` for additional bits to create
         """
         kwargs = {
             'resource_name': self._meta.resource_name,
@@ -634,10 +642,31 @@ class Resource(object):
         if self._meta.api_name is not None:
             kwargs['api_name'] = self._meta.api_name
 
+        if bundle_or_obj is not None:
+            kwargs.update(self.detail_uri_kwargs(bundle_or_obj))
+
+        return kwargs
+
+    def get_resource_uri(self, bundle_or_obj=None, url_name='api_dispatch_list'):
+        """
+        Handles generating a resource URI.
+
+        If the ``bundle_or_obj`` argument is not provided, it builds the URI
+        for the list endpoint.
+
+        If the ``bundle_or_obj`` argument is provided, it builds the URI for
+        the detail endpoint.
+
+        Return the generated URI. If that URI can not be reversed (not found
+        in the URLconf), it will return an empty string.
+        """
+        if bundle_or_obj is not None:
+            url_name = 'api_dispatch_detail'
+
         try:
-            return self._build_reverse_url("api_dispatch_list", kwargs=kwargs)
+            return self._build_reverse_url(url_name, kwargs=self.resource_uri_kwargs(bundle_or_obj))
         except NoReverseMatch:
-            return None
+            return ''
 
     def get_via_uri(self, uri, request=None):
         """
@@ -1088,7 +1117,7 @@ class Resource(object):
         objects = self.obj_get_list(request=request, **self.remove_api_resource_names(kwargs))
         sorted_objects = self.apply_sorting(objects, options=request.GET)
 
-        paginator = self._meta.paginator_class(request.GET, sorted_objects, resource_uri=self.get_resource_list_uri(), limit=self._meta.limit, max_limit=self._meta.max_limit, collection_name=self._meta.collection_name)
+        paginator = self._meta.paginator_class(request.GET, sorted_objects, resource_uri=self.get_resource_uri(), limit=self._meta.limit, max_limit=self._meta.max_limit, collection_name=self._meta.collection_name)
         to_be_serialized = paginator.page()
 
         # Dehydrate the bundles in preparation for serialization.
@@ -1304,6 +1333,14 @@ class Resource(object):
 
             * ``PATCH`` is all or nothing. If a single sub-operation fails, the
               entire request will fail and all resources will be rolled back.
+
+          * For ``PATCH`` to work, you **must** have ``put`` in your
+            :ref:`detail-allowed-methods` setting.
+
+          * To delete objects via ``deleted_objects`` in a ``PATCH`` request you
+            **must** have ``delete`` in your :ref:`detail-allowed-methods`
+            setting.
+
         """
         request = convert_post_to_patch(request)
         deserialized = self.deserialize(request, request.raw_post_data, format=request.META.get('CONTENT_TYPE', 'application/json'))
@@ -1345,13 +1382,13 @@ class Resource(object):
                     # The object referenced by resource_uri doesn't exist,
                     # so this is a create-by-PUT equivalent.
                     data = self.alter_deserialized_detail_data(request, data)
-                    bundle = self.build_bundle(data=dict_strip_unicode_keys(data))
+                    bundle = self.build_bundle(data=dict_strip_unicode_keys(data), request=request)
                     self.obj_create(bundle, request=request)
             else:
                 # There's no resource URI, so this is a create call just
                 # like a POST to the list resource.
                 data = self.alter_deserialized_detail_data(request, data)
-                bundle = self.build_bundle(data=dict_strip_unicode_keys(data))
+                bundle = self.build_bundle(data=dict_strip_unicode_keys(data), request=request)
                 self.obj_create(bundle, request=request)
 
             bundles_seen.append( bundle )
@@ -1446,18 +1483,19 @@ class Resource(object):
         self.throttle_check(request)
 
         # Rip apart the list then iterate.
-        obj_pks = kwargs.get('pk_list', '').split(';')
+        kwarg_name = '%s_list' % self._meta.detail_uri_name
+        obj_identifiers = kwargs.get(kwarg_name, '').split(';')
         objects = []
         not_found = []
 
-        for pk in obj_pks:
+        for identifier in obj_identifiers:
             try:
-                obj = self.obj_get(request, pk=pk)
+                obj = self.obj_get(request, **{self._meta.detail_uri_name: identifier})
                 bundle = self.build_bundle(obj=obj, request=request)
                 bundle = self.full_dehydrate(bundle)
                 objects.append(bundle)
             except ObjectDoesNotExist:
-                not_found.append(pk)
+                not_found.append(identifier)
 
         object_list = {
             'objects': objects,
@@ -1535,27 +1573,28 @@ class ModelResource(Resource):
         Django type.
         """
         result = default
+        internal_type = f.get_internal_type()
 
-        if f.get_internal_type() in ('DateField', 'DateTimeField'):
+        if internal_type in ('DateField', 'DateTimeField'):
             result = fields.DateTimeField
-        elif f.get_internal_type() in ('BooleanField', 'NullBooleanField'):
+        elif internal_type in ('BooleanField', 'NullBooleanField'):
             result = fields.BooleanField
-        elif f.get_internal_type() in ('FloatField',):
+        elif internal_type in ('FloatField',):
             result = fields.FloatField
-        elif f.get_internal_type() in ('DecimalField',):
+        elif internal_type in ('DecimalField',):
             result = fields.DecimalField
-        elif f.get_internal_type() in ('IntegerField', 'PositiveIntegerField', 'PositiveSmallIntegerField', 'SmallIntegerField'):
+        elif internal_type in ('IntegerField', 'PositiveIntegerField', 'PositiveSmallIntegerField', 'SmallIntegerField', 'AutoField'):
             result = fields.IntegerField
-        elif f.get_internal_type() in ('FileField', 'ImageField'):
+        elif internal_type in ('FileField', 'ImageField'):
             result = fields.FileField
-        elif f.get_internal_type() == 'TimeField':
+        elif internal_type == 'TimeField':
             result = fields.TimeField
         # TODO: Perhaps enable these via introspection. The reason they're not enabled
         #       by default is the very different ``__init__`` they have over
         #       the other fields.
-        # elif f.get_internal_type() == 'ForeignKey':
+        # elif internal_type == 'ForeignKey':
         #     result = ForeignKey
-        # elif f.get_internal_type() == 'ManyToManyField':
+        # elif internal_type == 'ManyToManyField':
         #     result = ManyToManyField
 
         return result
@@ -2106,25 +2145,21 @@ class ModelResource(Resource):
 
             related_mngr.add(*related_objs)
 
-    def get_resource_uri(self, bundle_or_obj):
+    def detail_uri_kwargs(self, bundle_or_obj):
         """
-        Handles generating a resource URI for a single resource.
+        Given a ``Bundle`` or an object (typically a ``Model`` instance),
+        it returns the extra kwargs needed to generate a detail URI.
 
-        Uses the model's ``pk`` in order to create the URI.
+        By default, it uses the model's ``pk`` in order to create the URI.
         """
-        kwargs = {
-            'resource_name': self._meta.resource_name,
-        }
+        kwargs = {}
 
         if isinstance(bundle_or_obj, Bundle):
-            kwargs['pk'] = bundle_or_obj.obj.pk
+            kwargs[self._meta.detail_uri_name] = bundle_or_obj.obj.pk
         else:
-            kwargs['pk'] = bundle_or_obj.id
+            kwargs[self._meta.detail_uri_name] = bundle_or_obj.id
 
-        if self._meta.api_name is not None:
-            kwargs['api_name'] = self._meta.api_name
-
-        return self._build_reverse_url("api_dispatch_detail", kwargs=kwargs)
+        return kwargs
 
 
 class NamespacedModelResource(ModelResource):
