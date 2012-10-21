@@ -1981,7 +1981,7 @@ class ModelResource(Resource):
 
         return lookup_kwargs
 
-    def obj_update(self, bundle, request=None, skip_errors=False, **kwargs):
+    def obj_update(self, bundle, request=None, **kwargs):
         """
         A ORM-specific implementation of ``obj_update``.
         """
@@ -2002,7 +2002,7 @@ class ModelResource(Resource):
         bundle = self.full_hydrate(bundle)
         self.is_valid(bundle,request)
 
-        if bundle.errors and not skip_errors:
+        if bundle.errors:
             self.error_response(bundle.errors, request)
 
         # Save FKs just in case.
