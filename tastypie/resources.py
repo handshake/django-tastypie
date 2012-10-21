@@ -688,12 +688,16 @@ class Resource(object):
         """
         if obj is None:
             obj = self._meta.object_class()
+            obj_is_new = True
+        else:
+            obj_is_new = False
 
         return Bundle(
             obj=obj,
             data=data,
             request=request,
-            objects_saved=objects_saved
+            objects_saved=objects_saved,
+            obj_is_new=obj_is_new
         )
 
     def build_filters(self, filters=None):
@@ -2076,6 +2080,17 @@ class ModelResource(Resource):
 
         self.authorized_create_detail(self.get_object_list(bundle.request), bundle)
         bundle = self.full_hydrate(bundle)
+        self.is_valid(bundle)
+
+        if bundle.errors:
+            self.error_response(bundle.errors, bundle.request)
+
+        # Save FKs just in case.
+        self.save_related(bundle)
+
+        # Save parent
+        bundle.save_obj()
+        bundle = self.full_hydrate(bundle)
         return self.save(bundle)
 
     def lookup_kwargs_with_identifiers(self, bundle, kwargs):
@@ -2085,7 +2100,7 @@ class ModelResource(Resource):
         lookup parameters that can find them in the DB
         """
         lookup_kwargs = {}
-        bundle.obj = self.get_object_list(bundle.request).model()
+        bundle.install_new_obj_from_class(self.get_object_list(bundle.request).model)
         # Override data values, we rely on uri identifiers
         bundle.data.update(kwargs)
         # We're going to manually hydrate, as opposed to calling
@@ -2121,7 +2136,7 @@ class ModelResource(Resource):
         """
         A ORM-specific implementation of ``obj_update``.
         """
-        if not bundle.obj or not self.get_bundle_detail_data(bundle):
+        if not bundle.obj or bundle.obj_is_new or not self.get_bundle_detail_data(bundle):
             try:
                 lookup_kwargs = self.lookup_kwargs_with_identifiers(bundle, kwargs)
             except:
@@ -2268,9 +2283,8 @@ class ModelResource(Resource):
             # Because sometimes it's ``None`` & that's OK.
             if related_obj:
                 if field_object.related_name:
-                    if not self.get_bundle_detail_data(bundle):
-                        bundle.obj.save()
-
+                    if bundle.obj_is_new:
+                        bundle.save_obj()
                     setattr(related_obj, field_object.related_name, bundle.obj)
 
                 related_resource = field_object.get_related_resource(related_obj)
