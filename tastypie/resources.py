@@ -1534,6 +1534,16 @@ class Resource(object):
         if collection_name not in deserialized:
             raise BadRequest("Invalid data sent: missing '%s'" % collection_name)
 
+        # Do deletions before creations so we don't accidentally blow away things that were just created
+        deleted_collection = deserialized.get(deleted_collection_name, [])
+        if deleted_collection:
+            if 'delete' not in self._meta.detail_allowed_methods:
+                raise ImmediateHttpResponse(response=http.HttpMethodNotAllowed())
+
+            for uri in deleted_collection:
+                obj = self.get_via_uri(uri, request=request)
+                self.obj_delete(request=request, _obj=obj)
+
         if len(deserialized[collection_name]) and 'put' not in self._meta.detail_allowed_methods:
             raise ImmediateHttpResponse(response=http.HttpMethodNotAllowed())
 
