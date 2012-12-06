@@ -9,8 +9,19 @@ class Migration(SchemaMigration):
 
     def forwards(self, orm):
         if not db.backend_name in ('mysql', 'sqlite'):
+
+            import pdb; pdb.set_trace()
+            should_create = True
+
+            # If we're on postgres and the index already exists, don't do it
+            if 'postgres' in db.backend_name:
+                indexExists = db.execute( "select COUNT(*) from pg_indexes WHERE indexname = 'tastypie_apikey_key'" )
+                should_create = (indexExists != [(1,)])
+
             # Adding index on 'ApiKey', fields ['key']
-            db.create_index('tastypie_apikey', ['key'])
+            if should_create:
+                db.create_index('tastypie_apikey', ['key'])
+
 
     def backwards(self, orm):
         if not db.backend_name in ('mysql', 'sqlite'):
