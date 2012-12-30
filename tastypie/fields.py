@@ -191,7 +191,11 @@ class ApiField(object):
         custom setters in your app code if setattr() is too raw for your fancy ORM model.
         """
 
-        setattr(bundle.obj, self.attribute, value)
+        try:
+            setattr(bundle.obj, self.attribute, value)
+        except Exception, e:
+            raise ApiFieldError("The '%s' field couldn't set value '%s': %s" %
+                                (self.instance_name, value, e))
 
 
 class CharField(ApiField):
