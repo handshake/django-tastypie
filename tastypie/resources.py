@@ -2149,7 +2149,7 @@ class ModelResource(Resource):
                 # actually allowed to update.  There are some smarts in
                 # RelatedField.resource_from_data() that attempt to protect against doing this but
                 # it all falls apart if you just blindly save here in the end.
-                if field_object.fk_resource.can_update():
+                if field_object.fk_resource is not None and field_object.fk_resource.can_update():
                     related_obj.save()
 
                 setattr(bundle.obj, field_object.attribute, related_obj)
