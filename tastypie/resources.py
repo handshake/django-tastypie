@@ -2372,6 +2372,13 @@ class ModelResource(Resource):
             if field_object.readonly:
                 continue
 
+            # Check to see if the resource has a custom 'save_<field_name>()' method
+            method = getattr( self, "save_%s" % field_name, None )
+
+            if method:
+                method( bundle )
+                continue
+
             # Get the manager.
             related_mngr = None
 
