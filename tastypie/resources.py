@@ -2145,11 +2145,15 @@ class ModelResource(Resource):
                         bundle.save_obj()
                     setattr(related_obj, field_object.related_name, bundle.obj)
 
-                # Don't try to save the related object unless the resource for that object is
-                # actually allowed to update.  There are some smarts in
-                # RelatedField.resource_from_data() that attempt to protect against doing this but
-                # it all falls apart if you just blindly save here in the end.
-                if field_object.fk_resource is not None and field_object.fk_resource.can_update():
+                # Don't try to save the related object unless it was put full mode and
+                # the resource for that object is actually allowed to update.
+                # There are some smarts in RelatedField.resource_from_data() that attempt to
+                # protect against doing this but it all falls apart if you just blindly save
+                # here in the end.
+                if bundle.data.get(field_name) and \
+                        hasattr(bundle.data[field_name], 'keys') and \
+                        field_object.fk_resource is not None and \
+                        field_object.fk_resource.can_update():
                     related_obj.save()
 
                 setattr(bundle.obj, field_object.attribute, related_obj)
