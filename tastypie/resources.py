@@ -2150,7 +2150,7 @@ class ModelResource(Resource):
                 # There are some smarts in RelatedField.resource_from_data() that attempt to
                 # protect against doing this but it all falls apart if you just blindly save
                 # here in the end.
-                if bundle.data.get(field_name) and \
+                if bundle.data.get(field_name) is not None and \
                         hasattr(bundle.data[field_name], 'keys') and \
                         field_object.fk_resource is not None and \
                         field_object.fk_resource.can_update():
