@@ -155,31 +155,16 @@ class ApiField(object):
         if self.readonly:
             return None
         if not bundle.data.has_key(self.instance_name):
-
-            is_related = getattr(self, 'is_related', False)
-            is_m2m = getattr(self, 'is_m2m', False)
-
-            if is_related and not is_m2m:
+            if getattr(self, 'is_related', False) and not getattr(self, 'is_m2m', False):
                 # We've got an FK (or alike field) & a possible parent object.
                 # Check for it.
                 if bundle.related_obj and bundle.related_name in (self.attribute, self.instance_name):
                     return bundle.related_obj
-
-            # Functor for safely checking if bundle.obj has a non-None property
-            def has_non_null_attr(obj, name):
-                try:
-                    return getattr(obj, name, None) is not None
-                except:
-                    if is_related:
-                        return None
-                    else:
-                        raise
-
             if self.blank:
                 return None
-            elif self.attribute and has_non_null_attr(bundle.obj, self.attribute):
+            elif self.attribute and getattr(bundle.obj, self.attribute, None):
                 return getattr(bundle.obj, self.attribute)
-            elif self.instance_name and has_non_null_attr(bundle.obj, self.instance_name):
+            elif self.instance_name and hasattr(bundle.obj, self.instance_name):
                 return getattr(bundle.obj, self.instance_name)
             elif self.has_default():
                 if callable(self._default):
@@ -191,12 +176,7 @@ class ApiField(object):
             else:
                 raise ApiFieldError("The '%s' field has no data and doesn't allow a default or null value." % self.instance_name)
 
-        bundle_val = bundle.data[self.instance_name]
-
-        if bundle_val is None and not self.null:
-            raise ApiFieldError("The '%s' field doesn't allow a null value." % self.instance_name)
-        else:
-            return bundle_val
+        return bundle.data[self.instance_name]
 
     def set_value_on_bundle_obj(self, bundle, value):
         """

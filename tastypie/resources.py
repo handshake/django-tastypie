@@ -2126,13 +2126,8 @@ class ModelResource(Resource):
         self.is_valid(bundle)
 
         if bundle.errors:
-            self.error_response(bundle.errors, bundle.request)
+            self.error_response(bundle.request, bundle.errors)
 
-        # Save FKs just in case.
-        self.save_related(bundle)
-
-        # Save parent
-        bundle.save_obj()
         bundle = self.full_hydrate(bundle)
         return self.save(bundle)
 
