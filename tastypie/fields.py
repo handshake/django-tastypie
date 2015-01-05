@@ -702,7 +702,15 @@ class RelatedField(ApiField):
             # We've got a data dictionary.
             # Since this leads to creation, this is the only one of these
             # methods that might care about "parent" data.
-            return self.resource_from_data(self.fk_resource, value, **kwargs)
+            try:
+                return self.resource_from_data(self.fk_resource, value, **kwargs)
+
+            # This could blow up because the related resource might not be
+            # POSTable, in that case just pass and accept the change without
+            # updating/creating the related resource
+            except ApiFieldError:
+                pass
+
         elif hasattr(value, 'pk'):
             # We've got an object with a primary key.
             return self.resource_from_pk(self.fk_resource, value, **kwargs)
