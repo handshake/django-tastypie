@@ -589,7 +589,7 @@ class RelatedField(ApiField):
         else:
             # ZOMG extra data and big payloads.
             bundle = related_resource.build_bundle(
-                obj=related_resource.instance,
+                obj=related_instance,
                 request=bundle.request,
                 objects_saved=bundle.objects_saved
             )
