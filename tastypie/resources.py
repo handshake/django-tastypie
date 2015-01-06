@@ -2397,6 +2397,10 @@ class ModelResource(Resource):
             for related_bundle in bundle.data[field_name]:
                 related_resource = field_object.get_related_resource(bundle.obj)
 
+                # Check if the related bundle is blank and is allowed to be
+                if field_object.blank and related_bundle is None:
+                    continue
+
                 # Before we build the bundle & try saving it, let's make sure we
                 # haven't already saved it.
                 obj_id = self.create_identifier(related_bundle.obj)
