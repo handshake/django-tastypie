@@ -303,6 +303,12 @@ class Serializer(object):
         it first tries to output the deserialized subelement called "object"
         or "objects" and falls back to deserializing based on hinted types in
         the XML element attribute "type".
+        
+        TODO: 
+             -Make a check to see if request is root (do only special things if request is the root otherwise do normal)
+             -Allow deleted_objects (see patch_list)
+             -Enforce patch_list protocol but be flexable for everything else
+             -figure out how to do all of that not in here.
         """
         if data.tag == 'request': # root
             # if "object" or "objects" exists, return deserialized forms.
