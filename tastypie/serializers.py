@@ -303,18 +303,26 @@ class Serializer(object):
         it first tries to output the deserialized subelement called "object"
         or "objects" and falls back to deserializing based on hinted types in
         the XML element attribute "type".
+        
+        TODO: 
+             -Make a check to see if request is root (do only special things if request is the root otherwise do normal)
+             -Allow deleted_objects (see patch_list)
+             -Enforce patch_list protocol but be flexable for everything else
+             -figure out how to do all of that not in here.
         """
-        if data.tag == 'request':
+        if data.tag == 'request': # root
             # if "object" or "objects" exists, return deserialized forms.
             elements = data.getchildren()
             for element in elements:
-                if element.tag in ('object', 'objects'):
+                if element.tag  == 'object':
                     return self.from_etree(element)
+                if element.tag  == 'objects':
+                    return {'objects': self.from_etree(element)}
             return dict((element.tag, self.from_etree(element)) for element in elements)
         elif data.tag == 'object' or data.get('type') == 'hash':
             return dict((element.tag, self.from_etree(element)) for element in data.getchildren())
         elif data.tag == 'objects' or data.get('type') == 'list':
-            return {data.tag: [self.from_etree(element) for element in data.getchildren()]}
+            return [self.from_etree(element) for element in data.getchildren()]
         else:
             type_string = data.get('type')
             if type_string in ('string', None):
