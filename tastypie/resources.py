@@ -774,7 +774,8 @@ class Resource(object):
             if field_object.readonly is True:
                 continue
 
-            # Don't hydrate if anything if we didn't explict ask tastypie to on UPDATEs.
+            ### HS-PATCH
+            # Don't hydrate the field if we didn't explicitly ask tastypie to on update operations.
             # This already sort of happens but we are being explict now.
             if field_name not in bundle.data and bundle.request.method in ['PUT', 'PATCH']:
                 continue
@@ -850,7 +851,8 @@ class Resource(object):
             if not getattr(field_object, 'is_m2m', False):
                 continue
             
-            # don't hydrate if anything if we didn't explict ask tastypie to. This mirror reguler hydrating.
+            ### HS-PATCH
+            # Don't hydrate the field if we didn't explicitly ask tastypie to on update operations.
             if field_name not in bundle.data and bundle.request.method in ['PUT', 'PATCH']:
                 continue
 
@@ -2186,7 +2188,8 @@ class ModelResource(Resource):
 
             if field_object.readonly:
                 continue
-                
+
+            ### HS-PATCH
             # No need to save anything if it is an update and we don't have the m2m in the data
             if field_name not in bundle.data and bundle.request.method in ['PUT', 'PATCH']:
                 continue
