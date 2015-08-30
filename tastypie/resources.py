@@ -774,8 +774,9 @@ class Resource(object):
             if field_object.readonly is True:
                 continue
 
-            # Don't hydrate if anything if we didn't explict ask tastypie to on UPDATEs. This already sort of happens but we are being explict now.
-            if field_name not in bundle.data and bundle.request.method in ['PUT', 'PATCH']
+            # Don't hydrate if anything if we didn't explict ask tastypie to on UPDATEs.
+            # This already sort of happens but we are being explict now.
+            if field_name not in bundle.data and bundle.request.method in ['PUT', 'PATCH']:
                 continue
 
             # Check for an optional method to do further hydration.
@@ -850,7 +851,7 @@ class Resource(object):
                 continue
             
             # don't hydrate if anything if we didn't explict ask tastypie to. This mirror reguler hydrating.
-            if field_name not in bundle.data and bundle.request.method in ['PUT', 'PATCH']
+            if field_name not in bundle.data and bundle.request.method in ['PUT', 'PATCH']:
                 continue
 
             if field_object.attribute:
@@ -2187,7 +2188,7 @@ class ModelResource(Resource):
                 continue
                 
             # No need to save anything if it is an update and we don't have the m2m in the data
-            if field_name not in bundle.data and bundle.request.method in ['PUT', 'PATCH']
+            if field_name not in bundle.data and bundle.request.method in ['PUT', 'PATCH']:
                 continue
 
             # Check to see if the resource has a custom 'save_<field_name>()' method
