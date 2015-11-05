@@ -46,10 +46,6 @@ class Api(object):
                 warnings.warn("A new resource '%r' is replacing the existing canonical URL for '%s'." % (resource, resource_name), Warning, stacklevel=2)
 
             self._canonicals[resource_name] = resource
-            # TODO: This is messy, but makes URI resolution on FK/M2M fields
-            #       work consistently.
-            resource._meta.api_name = self.api_name
-            resource.__class__.Meta.api_name = self.api_name
 
     def unregister(self, resource_name):
         """

@@ -85,7 +85,7 @@ class NoteModelResourceTestCase(TestCase):
         # reversals will fail. Fakes the instance as ``None``, since for
         # testing purposes, we don't care.
         related = lur.notes.get_related_resource()
-        self.assertEqual(related._meta.api_name, 'foo')
+        self.assertEqual(related.api_name, 'foo')
 
 
 class AnnotatedNoteModelResourceTestCase(TestCase):
