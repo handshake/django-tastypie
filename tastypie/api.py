@@ -41,6 +41,8 @@ class Api(object):
 
         self._registry[resource_name] = resource
 
+        resource.api_name = self.api_name
+
         if canonical is True:
             if resource_name in self._canonicals:
                 warnings.warn("A new resource '%r' is replacing the existing canonical URL for '%s'." % (resource, resource_name), Warning, stacklevel=2)
