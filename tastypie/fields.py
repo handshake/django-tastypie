@@ -498,7 +498,7 @@ class RelatedField(ApiField):
         Instantiates the related resource.
         """
 
-        instance = self.to_class()
+        instance = self.to_class(api_name=self.api_name)
         instance.api_name = self.api_name
 
         return instance
@@ -623,7 +623,7 @@ class RelatedField(ApiField):
         Accepts either a URI, a data dictionary (or dictionary-like structure)
         or an object with a ``pk``.
         """
-        self.fk_resource = self.to_class()
+        self.fk_resource = self.to_class(api_name=self.api_name)
         kwargs = {
             'request': request,
             'related_obj': related_obj,

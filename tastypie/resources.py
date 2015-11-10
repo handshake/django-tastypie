@@ -771,6 +771,7 @@ class Resource(object):
             bundle.install_new_obj_from_class(self._meta.object_class)
         bundle = self.hydrate(bundle)
         for field_name, field_object in self.fields.items():
+            field_object.api_name = self.api_name
             if field_object.readonly is True:
                 continue
 
@@ -848,6 +849,7 @@ class Resource(object):
             raise HydrationError("You must call 'full_hydrate' before attempting to run 'hydrate_m2m' on %r." % self)
 
         for field_name, field_object in self.fields.items():
+            field_object.api_name = self.api_name
             if not getattr(field_object, 'is_m2m', False):
                 continue
             
@@ -896,6 +898,7 @@ class Resource(object):
             data['filtering'] = self._meta.filtering
 
         for field_name, field_object in self.fields.items():
+            field_object.api_name = self.api_name
             data['fields'][field_name] = {
                 'default': field_object.default,
                 'type': field_object.dehydrated_type,
