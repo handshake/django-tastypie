@@ -495,17 +495,13 @@ class RelatedField(ApiField):
 
     def get_related_resource(self, related_instance=None):
         """
-        Instaniates the related resource.
+        Instantiates the related resource.
         """
 
-        related_resource = self.to_class()
+        instance = self.to_class(api_name=self.api_name)
+        instance.api_name = self.api_name
 
-        # Fix the ``api_name`` if it's not present.
-        if related_resource._meta.api_name is None:
-            if self._resource and not self._resource._meta.api_name is None:
-                related_resource._meta.api_name = self._resource._meta.api_name
-
-        return related_resource
+        return instance
 
     @property
     def to_class(self):
@@ -627,7 +623,7 @@ class RelatedField(ApiField):
         Accepts either a URI, a data dictionary (or dictionary-like structure)
         or an object with a ``pk``.
         """
-        self.fk_resource = self.to_class()
+        self.fk_resource = self.to_class(api_name=self.api_name)
         kwargs = {
             'request': request,
             'related_obj': related_obj,

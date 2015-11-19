@@ -9,7 +9,7 @@ class GenericResource(ModelResource):
     """
     def __init__(self, resources, *args, **kwargs):
         self.resource_mapping = dict((r._meta.resource_name, r) for r in resources)
-        return super(GenericResource, self).__init__(*args, **kwargs)
+        super(GenericResource, self).__init__(*args, **kwargs)
 
 
     def get_via_uri(self, uri, request=None):
@@ -35,7 +35,7 @@ class GenericResource(ModelResource):
         except (Resolver404, KeyError):
             raise NotFound("The URL provided '%s' was not a link to a valid resource." % uri)
 
-        parent_resource = resource_class(api_name=self._meta.api_name)
+        parent_resource = resource_class(api_name=self.api_name)
         kwargs = parent_resource.remove_api_resource_names(kwargs)
         return parent_resource.obj_get(**kwargs)
 
