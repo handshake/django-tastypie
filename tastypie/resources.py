@@ -3,7 +3,7 @@ import logging
 import warnings
 import django
 from django.conf import settings
-from django.conf.urls.defaults import patterns, url
+from django.conf.urls import patterns, url
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned, ValidationError
 from django.core.urlresolvers import NoReverseMatch, reverse, resolve, Resolver404, get_script_prefix
 from django.db import transaction
@@ -852,7 +852,7 @@ class Resource(object):
             field_object.api_name = self.api_name
             if not getattr(field_object, 'is_m2m', False):
                 continue
-            
+
             ### HS-PATCH
             # Don't hydrate the field if we didn't explicitly ask tastypie to on update operations.
             if field_name not in bundle.data and bundle.request.method in ['PUT', 'PATCH']:
