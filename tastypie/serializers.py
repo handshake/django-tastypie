@@ -4,7 +4,7 @@ import django
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.core.serializers import json
-from django.utils import simplejson
+import simplejson
 from django.utils.encoding import force_unicode
 from tastypie.bundle import Bundle
 from tastypie.exceptions import UnsupportedFormat
@@ -303,8 +303,8 @@ class Serializer(object):
         it first tries to output the deserialized subelement called "object"
         or "objects" and falls back to deserializing based on hinted types in
         the XML element attribute "type".
-        
-        TODO: 
+
+        TODO:
              -Make a check to see if request is root (do only special things if request is the root otherwise do normal)
              -Allow deleted_objects (see patch_list)
              -Enforce patch_list protocol but be flexable for everything else
