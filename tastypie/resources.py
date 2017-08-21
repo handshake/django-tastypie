@@ -852,7 +852,7 @@ class Resource(object):
             field_object.api_name = self.api_name
             if not getattr(field_object, 'is_m2m', False):
                 continue
-            
+
             ### HS-PATCH
             # Don't hydrate the field if we didn't explicitly ask tastypie to on update operations.
             if field_name not in bundle.data and bundle.request.method in ['PUT', 'PATCH']:
@@ -1488,7 +1488,7 @@ class Resource(object):
         self.update_in_place(request, bundle, deserialized)
 
         if not self._meta.always_return_data:
-            return http.HttpAccepted()
+            return http.HttpNoContent()
         else:
             bundle = self.full_dehydrate(bundle)
             bundle = self.alter_detail_data_to_serialize(request, bundle)
