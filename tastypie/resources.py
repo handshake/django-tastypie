@@ -1488,7 +1488,7 @@ class Resource(object):
         self.update_in_place(request, bundle, deserialized)
 
         if not self._meta.always_return_data:
-            return http.HttpAccepted()
+            return http.HttpNoContent()
         else:
             bundle = self.full_dehydrate(bundle)
             bundle = self.alter_detail_data_to_serialize(request, bundle)
