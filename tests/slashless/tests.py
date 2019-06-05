@@ -2,7 +2,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.http import HttpRequest
 from django.test import TestCase
-from django.utils import simplejson as json
+import simplejson as json
 
 
 class ViewsWithoutSlashesTestCase(TestCase):
@@ -43,4 +43,4 @@ class ViewsWithoutSlashesTestCase(TestCase):
         deserialized = json.loads(resp.content)
         obj_ids = [o["id"] for o in deserialized["objects"]]
         self.assertEqual(sorted(obj_ids), [1,2])
-        
+
