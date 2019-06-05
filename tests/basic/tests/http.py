@@ -1,6 +1,6 @@
 import httplib
 from testcases import TestServerTestCase
-import simplejson as json
+import json
 
 
 class HTTPTestCase(TestServerTestCase):

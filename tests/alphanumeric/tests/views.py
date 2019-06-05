@@ -1,6 +1,6 @@
 from django.http import HttpRequest
 from django.test import TestCase
-import simplejson as json
+import json
 
 
 class ViewsTestCase(TestCase):
