@@ -1396,6 +1396,9 @@ class Resource(object):
         request = convert_post_to_patch(request)
         deserialized = self.deserialize(request, request.body, format=request.META.get('CONTENT_TYPE', 'application/json'))
 
+        if deserialized is None:
+            raise BadRequest("No data sent")
+
         collection_name = self._meta.collection_name
         deleted_collection_name = 'deleted_%s' % collection_name
         if collection_name not in deserialized:
