@@ -1991,7 +1991,7 @@ class ModelResourceTestCase(TestCase):
         self.assertEqual(resp.status_code, 404)
 
         resp = resource.patch_detail(request, pk=1)
-        self.assertEqual(resp.status_code, 202)
+        self.assertEqual(resp.status_code, 204)
         self.assertEqual(Note.objects.count(), 6)
         note = Note.objects.get(pk=1)
         self.assertEqual(note.content, "The cat is back. The dog coughed him up out back.")
@@ -2000,7 +2000,7 @@ class ModelResourceTestCase(TestCase):
         request._raw_post_data = request._body = '{"content": "The cat is gone again. I think it was the rabbits that ate him this time."}'
 
         resp = resource.patch_detail(request, pk=1)
-        self.assertEqual(resp.status_code, 202)
+        self.assertEqual(resp.status_code, 204)
         self.assertEqual(Note.objects.count(), 6)
         new_note = Note.objects.get(pk=1)
         self.assertEqual(new_note.content, u'The cat is gone again. I think it was the rabbits that ate him this time.')
@@ -2059,7 +2059,7 @@ class ModelResourceTestCase(TestCase):
         request._read_started = False
         request._raw_post_data = request._body = '{"title": "Super-duper override ACTIVATE!"}'
         resp = resource.dispatch('detail', request, pk=1)
-        self.assertEqual(resp.status_code, 202)
+        self.assertEqual(resp.status_code, 204)
         self.assertEqual(resp.content, '')
         self.assertEqual(Note.objects.get(pk=1).title, u'Super-duper override ACTIVATE!')
 
