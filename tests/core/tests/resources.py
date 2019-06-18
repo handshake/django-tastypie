@@ -11,7 +11,7 @@ from django.core import mail
 from django.core.urlresolvers import reverse
 from django import forms
 from django.http import HttpRequest, QueryDict, Http404
-from django.test import TestCase
+from testcases import TestCaseWithFixture as TestCase
 from django.utils import dateformat
 import json
 from tastypie.authentication import BasicAuthentication

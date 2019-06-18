@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.conf import settings
-from django.test import TestCase
+from testcases import TestCaseWithFixture as TestCase
 from tastypie.exceptions import BadRequest
 from tastypie.paginator import Paginator
 from core.models import Note

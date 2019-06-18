@@ -1,4 +1,4 @@
-from django.conf.urls.defaults import *
+from django.conf.urls import patterns, include, url
 from tastypie import fields
 from tastypie.resources import ModelResource
 from core.models import Note, Subject
@@ -14,7 +14,7 @@ class SubjectResource(ModelResource):
 class CustomNoteResource(ModelResource):
     author = fields.ForeignKey(UserResource, 'author')
     subjects = fields.ManyToManyField(SubjectResource, 'subjects')
-    
+
     class Meta:
         resource_name = 'notes'
         queryset = Note.objects.all()

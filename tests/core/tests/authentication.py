@@ -5,7 +5,7 @@ import warnings
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser, User
 from django.http import HttpRequest
-from django.test import TestCase
+from testcases import TestCaseWithFixture as TestCase
 from tastypie.authentication import Authentication, BasicAuthentication, ApiKeyAuthentication, SessionAuthentication, DigestAuthentication, OAuthAuthentication, MultiAuthentication
 from tastypie.http import HttpUnauthorized
 from tastypie.models import ApiKey, create_api_key

@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.http import HttpRequest
-from django.test import TestCase, Client
+from django.test import Client
+from testcases import TestCaseWithFixture as TestCase
 import json
 
 

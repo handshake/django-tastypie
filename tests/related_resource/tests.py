@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.test import TestCase
+from testcases import TestCaseWithFixture as TestCase
 import json
 from core.models import Note, MediaBit
 from core.tests.resources import HttpRequest

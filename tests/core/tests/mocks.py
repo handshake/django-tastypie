@@ -7,9 +7,10 @@ class MockRequest(object):
         self.META = {}
         self.path = ''
         self.method = 'GET'
-    
+        self.body = ''
+
     def get_full_path(self, *args, **kwargs):
         return self.path
-    
+
     def is_ajax(self):
         return self.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'

@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.http import HttpRequest
-from django.test import TestCase
+from testcases import TestCaseWithFixture as TestCase
 import json
 #settings.DEBUG = True
 

@@ -1,6 +1,6 @@
 from __future__ import with_statement
 
-from django.test import TestCase
+from testcases import TestCaseWithFixture as TestCase
 from tastypie.contrib.contenttypes.fields import GenericForeignKeyField
 from tastypie.bundle import Bundle
 from content_gfk.models import Note, Quote, Rating, Definition
