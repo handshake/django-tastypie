@@ -10,7 +10,7 @@ from django.test.testcases import TestCase
 
 
 class TestCaseWithFixture(TestCase):
-    fixtures = ['initial_data.json']
+    fixtures = ['test_data.json']
 
 class StoppableWSGIServer(basehttp.WSGIServer):
     """WSGIServer with short timeout, so that server thread can stop this server."""
@@ -74,7 +74,7 @@ class TestServerThread(threading.Thread):
 
 
 class TestServerTestCase(TransactionTestCase):
-    fixtures = ['initial_data.json']
+    fixtures = ['test_data.json']
 
     def start_test_server(self, address='localhost', port=8000):
         """Creates a live test server object (instance of WSGIServer)."""
