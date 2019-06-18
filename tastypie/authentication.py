@@ -32,9 +32,14 @@ try:
 except ImportError:
     oauth_provider = None
 
+PROTOCOL_TO_PORT = {
+    'http': 80,
+    'https': 443,
+}
+
 def same_origin(url1, url2):
     """
-    Checks if two URLs are 'same-origin'    
+    Checks if two URLs are 'same-origin'
     """
     p1, p2 = urlparse(url1), urlparse(url2)
     try:
