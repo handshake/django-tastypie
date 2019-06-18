@@ -178,12 +178,13 @@ class Resource(object):
     def __init__(self, api_name=None):
         self.fields = deepcopy(self.base_fields)
 
-        if not api_name is None:
-            self.api_name = api_name
+        self.api_name = api_name or self._meta.api_name
 
     def __getattr__(self, name):
         if name in self.fields:
             return self.fields[name]
+        elif name == "api_name":
+            return self.__dict__["api_name"]
         raise AttributeError(name)
 
     def wrap_view(self, view):
