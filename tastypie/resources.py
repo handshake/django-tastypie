@@ -941,7 +941,7 @@ class Resource(object):
             smooshed.append("%s=%s" % (key, value))
 
         # Use a list plus a ``.join()`` because it's faster than concatenation.
-        return "%s:%s:%s:%s" % (self.api_name, self._meta.resource_name, ':'.join(args), ':'.join(smooshed))
+        return "%s:%s:%s:%s" % (self.api_name, self._meta.resource_name, ':'.join(args), ':'.join(sorted(smooshed)))
 
     # Data access methods.
 
