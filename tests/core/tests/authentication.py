@@ -261,20 +261,26 @@ class SessionAuthenticationTestCase(TestCase):
         self.assertTrue(auth.is_authenticated(request))
 
         # Secure & wrong referrer.
-        os.environ["HTTPS"] = "on"
+        class SecureRequest(HttpRequest):
+            def _get_scheme(self):
+                return 'https'
+
+        request = SecureRequest()
         request.method = 'POST'
         request.META = {
             'HTTP_X_CSRFTOKEN': 'abcdef1234567890abcdef1234567890'
         }
+        request.COOKIES = {
+            settings.CSRF_COOKIE_NAME: 'abcdef1234567890abcdef1234567890'
+        }
         request.META['HTTP_HOST'] = 'example.com'
         request.META['HTTP_REFERER'] = ''
+        request.user = User.objects.get(username='johndoe')
         self.assertFalse(auth.is_authenticated(request))
 
         # Secure & correct referrer.
         request.META['HTTP_REFERER'] = 'https://example.com/'
         self.assertTrue(auth.is_authenticated(request))
-
-        os.environ["HTTPS"] = "off"
 
     def test_get_identifier(self):
         auth = SessionAuthentication()
