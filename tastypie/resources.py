@@ -1409,12 +1409,14 @@ class Resource(object):
                 obj = self.get_via_uri(uri, request=request)
                 self.obj_delete(request=request, _obj=obj)
 
-        if len(deserialized[collection_name]) and 'put' not in self._meta.detail_allowed_methods:
+        # "objects" sjould be a list but lets not blow up with a 500 if someone put null
+        defined_collection = deserialized[collection_name] or []
+        if len(defined_collection) and 'put' not in self._meta.detail_allowed_methods:
             raise ImmediateHttpResponse(response=http.HttpMethodNotAllowed())
 
         bundles_seen = []
 
-        for data in deserialized[collection_name]:
+        for data in defined_collection:
 
             # If there's a resource_uri then this is either an
             # update-in-place or a create-via-PUT.
