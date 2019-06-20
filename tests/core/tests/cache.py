@@ -1,6 +1,6 @@
 import time
 from django.core.cache import cache
-from django.test import TestCase
+from testcases import TestCaseWithFixture as TestCase
 from tastypie.cache import NoCache, SimpleCache
 
 

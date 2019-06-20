@@ -1,4 +1,4 @@
-from django.test import TestCase
+from testcases import TestCaseWithFixture as TestCase
 from tastypie.exceptions import NotFound
 from tastypie.contrib.contenttypes.resources import GenericResource
 

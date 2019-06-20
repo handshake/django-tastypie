@@ -2,7 +2,7 @@ import datetime
 from dateutil.parser import parse
 from decimal import Decimal
 import re
-from importlib import import_module
+import importlib
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.utils import datetime_safe
 from tastypie.bundle import Bundle

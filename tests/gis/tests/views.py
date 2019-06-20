@@ -1,5 +1,5 @@
 from django.http import HttpRequest
-from django.test import TestCase
+from testcases import TestCaseWithFixture as TestCase
 import json
 
 

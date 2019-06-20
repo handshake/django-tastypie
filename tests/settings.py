@@ -17,10 +17,11 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.%s' % DATABASE_ENGINE,
         'NAME': DATABASE_NAME,
-        'TEST_NAME': TEST_DATABASE_NAME,
+        'TEST': {
+            'NAME': TEST_DATABASE_NAME
+        },
     }
 }
-
 
 INSTALLED_APPS = [
     'django.contrib.auth',

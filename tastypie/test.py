@@ -1,7 +1,7 @@
 import time
 from urlparse import urlparse
 from django.conf import settings
-from django.test import TestCase
+from testcases import TestCaseWithFixture as TestCase
 from django.test.client import FakePayload, Client
 from tastypie.serializers import Serializer
 

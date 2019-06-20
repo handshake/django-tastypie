@@ -1,4 +1,4 @@
-from django.test import TestCase
+from testcases import TestCaseWithFixture as TestCase
 from django.http import HttpRequest
 from django.contrib.auth.models import User, Permission
 from core.models import Note

@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 from django.conf import settings
-from django.test import TestCase
+from testcases import TestCaseWithFixture as TestCase
 from tastypie.exceptions import BadRequest
 from tastypie.paginator import Paginator
 from core.models import Note
 from core.tests.resources import NoteResource
 from django.db import reset_queries
 from django.http import QueryDict
-
+from urlparse import urlsplit, parse_qs
 
 class PaginatorTestCase(TestCase):
     fixtures = ['note_testdata.json']
@@ -48,7 +48,8 @@ class PaginatorTestCase(TestCase):
         self.assertEqual(meta['limit'], 2)
         self.assertEqual(meta['offset'], 0)
         self.assertEqual(meta['previous'], None)
-        self.assertEqual(meta['next'], '/api/v1/notes/?limit=2&offset=2')
+        self.assertIn('limit=2', meta['next'])
+        self.assertIn('offset=2', meta['next'])
         self.assertEqual(meta['total_count'], 6)
 
     def test_page2(self):
@@ -56,8 +57,10 @@ class PaginatorTestCase(TestCase):
         meta = paginator.page()['meta']
         self.assertEqual(meta['limit'], 2)
         self.assertEqual(meta['offset'], 2)
-        self.assertEqual(meta['previous'], '/api/v1/notes/?limit=2&offset=0')
-        self.assertEqual(meta['next'], '/api/v1/notes/?limit=2&offset=4')
+        self.assertIn('limit=2', meta['previous'])
+        self.assertIn('offset=0', meta['previous'])
+        self.assertIn('limit=2', meta['next'])
+        self.assertIn('offset=4', meta['next'])
         self.assertEqual(meta['total_count'], 6)
 
     def test_page3(self):
@@ -65,7 +68,8 @@ class PaginatorTestCase(TestCase):
         meta = paginator.page()['meta']
         self.assertEqual(meta['limit'], 2)
         self.assertEqual(meta['offset'], 4)
-        self.assertEqual(meta['previous'], '/api/v1/notes/?limit=2&offset=2')
+        self.assertIn('limit=2', meta['previous'])
+        self.assertIn('offset=2', meta['previous'])
         self.assertEqual(meta['next'], None)
         self.assertEqual(meta['total_count'], 6)
 
@@ -75,8 +79,10 @@ class PaginatorTestCase(TestCase):
             meta = paginator.page()['meta']
             self.assertEqual(meta['limit'], 2)
             self.assertEqual(meta['offset'], 2)
-            self.assertEqual(meta['previous'], '/api/v1/notes/?limit=2&offset=0')
-            self.assertEqual(meta['next'], '/api/v1/notes/?limit=2&offset=4')
+            self.assertIn('limit=2', meta['previous'])
+            self.assertIn('offset=0', meta['previous'])
+            self.assertIn('limit=2', meta['next'])
+            self.assertIn('offset=4', meta['next'])
             self.assertEqual(meta['total_count'], 6)
 
     def test_page3_with_request(self):
@@ -85,7 +91,8 @@ class PaginatorTestCase(TestCase):
             meta = paginator.page()['meta']
             self.assertEqual(meta['limit'], 2)
             self.assertEqual(meta['offset'], 4)
-            self.assertEqual(meta['previous'], '/api/v1/notes/?limit=2&offset=2')
+            self.assertIn('limit=2', meta['previous'])
+            self.assertIn('offset=2', meta['previous'])
             self.assertEqual(meta['next'], None)
             self.assertEqual(meta['total_count'], 6)
 
@@ -116,8 +123,14 @@ class PaginatorTestCase(TestCase):
         meta = paginator.page()['meta']
         self.assertEqual(meta['limit'], 2)
         self.assertEqual(meta['offset'], 2)
-        self.assertEqual(meta['previous'], '/api/v1/notes/?slug__startswith=food&offset=0&limit=2&format=json')
-        self.assertEqual(meta['next'], '/api/v1/notes/?slug__startswith=food&offset=4&limit=2&format=json')
+        self.assertIn('limit=2', meta['previous'])
+        self.assertIn('offset=0', meta['previous'])
+        self.assertIn('format=json', meta['previous'])
+        self.assertIn('slug__startswith=food', meta['previous'])
+        self.assertIn('limit=2', meta['next'])
+        self.assertIn('offset=4', meta['next'])
+        self.assertIn('format=json', meta['next'])
+        self.assertIn('slug__startswith=food', meta['next'])
         self.assertEqual(meta['total_count'], 6)
 
     def test_limit(self):
@@ -206,8 +219,14 @@ class PaginatorTestCase(TestCase):
         meta = paginator.page()['meta']
         self.assertEqual(meta['limit'], 2)
         self.assertEqual(meta['offset'], 2)
-        self.assertEqual(meta['previous'], '/api/v1/notes/?slug__startswith=%E2%98%83&offset=0&limit=2&format=json')
-        self.assertEqual(meta['next'], u'/api/v1/notes/?slug__startswith=%E2%98%83&offset=4&limit=2&format=json')
+        self.assertIn('limit=2', meta['previous'])
+        self.assertIn('offset=0', meta['previous'])
+        self.assertIn('format=json', meta['previous'])
+        self.assertIn('slug__startswith=%E2%98%83', meta['previous'])
+        self.assertIn(u'limit=2', meta['next'])
+        self.assertIn(u'offset=4', meta['next'])
+        self.assertIn(u'format=json', meta['next'])
+        self.assertIn(u'slug__startswith=%E2%98%83', meta['next'])
         self.assertEqual(meta['total_count'], 6)
 
         request = QueryDict('slug__startswith=☃&format=json')
@@ -215,8 +234,14 @@ class PaginatorTestCase(TestCase):
         meta = paginator.page()['meta']
         self.assertEqual(meta['limit'], 2)
         self.assertEqual(meta['offset'], 2)
-        self.assertEqual(meta['previous'], '/api/v1/notes/?slug__startswith=%E2%98%83&offset=0&limit=2&format=json')
-        self.assertEqual(meta['next'], u'/api/v1/notes/?slug__startswith=%E2%98%83&offset=4&limit=2&format=json')
+        self.assertIn('limit=2', meta['previous'])
+        self.assertIn('offset=0', meta['previous'])
+        self.assertIn('format=json', meta['previous'])
+        self.assertIn('slug__startswith=%E2%98%83', meta['previous'])
+        self.assertIn(u'limit=2', meta['next'])
+        self.assertIn(u'offset=4', meta['next'])
+        self.assertIn(u'format=json', meta['next'])
+        self.assertIn(u'slug__startswith=%E2%98%83', meta['next'])
         self.assertEqual(meta['total_count'], 6)
 
     def test_custom_collection_name(self):
@@ -235,8 +260,14 @@ class PaginatorTestCase(TestCase):
         meta = paginator.page()['meta']
         self.assertEqual(meta['limit'], 2)
         self.assertEqual(meta['offset'], 2)
-        self.assertEqual(meta['previous'], '/api/v1/notes/?a=1&a=2&limit=2&offset=0')
-        self.assertEqual(meta['next'], '/api/v1/notes/?a=1&a=2&limit=2&offset=4')
+        self.assertIn('limit=2', meta['previous'])
+        self.assertIn('offset=0', meta['previous'])
+        self.assertIn('a=1', meta['previous'])
+        self.assertIn('a=2', meta['previous'])
+        self.assertIn('limit=2', meta['next'])
+        self.assertIn('offset=4', meta['next'])
+        self.assertIn('a=1', meta['next'])
+        self.assertIn('a=2', meta['next'])
 
     def test_max_limit(self):
         paginator = Paginator({'limit': 0}, self.data_set, max_limit=10,

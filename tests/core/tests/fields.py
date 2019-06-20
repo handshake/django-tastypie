@@ -2,7 +2,7 @@ import datetime
 from dateutil.tz import *
 from django.db import models
 from django.contrib.auth.models import User
-from django.test import TestCase
+from testcases import TestCaseWithFixture as TestCase
 from tastypie.bundle import Bundle
 from tastypie.exceptions import ApiFieldError, NotFound
 from tastypie.fields import *

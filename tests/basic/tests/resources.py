@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django.http import HttpRequest
-from django.test import TestCase
+from testcases import TestCaseWithFixture as TestCase
 from tastypie.bundle import Bundle
 from tastypie.fields import ToOneField, ToManyField
 from tastypie.resources import ModelResource
