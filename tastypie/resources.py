@@ -804,8 +804,9 @@ class Resource(object):
                         elif field_object.null:
 
                             # Figure out if we're setting the reverse side of a 1:1 relationship
-                            orm_field, _, direct, _ = \
-                                bundle.obj._meta.get_field_by_name( field_object.attribute )
+
+                            field = bundle.obj._meta.get_field(field_object.attribute)
+                            direct = not field.auto_created or field.Concrete
 
                             is_setting_rev_1to1 = not direct and \
                                                   orm_field.field.rel and \
