@@ -6,7 +6,7 @@ from core.models import Note, MediaBit
 from core.tests.resources import HttpRequest
 from core.tests.mocks import MockRequest
 from tastypie import fields
-from tastypie.exceptions import ApiFieldError
+from tastypie.exceptions import ImmediateHttpResponse
 from related_resource.api.resources import FreshNoteResource, CategoryResource
 from related_resource.api.urls import api
 from related_resource.models import Category, Tag, Taggable, TaggableTag, ExtraData
@@ -48,7 +48,12 @@ class RelatedResourceTest(TestCase):
         request.body = '{"content": "The cat is back. The dog coughed him up out back.", "created": "2010-04-03 20:05:00", "is_active": true, "slug": "cat-is-back-2", "title": "The Cat Is Back", "updated": "2010-04-03 20:05:00", "author": {"id": %s, "username": "foobar"}}' % self.user.id
 
 
-        self.assertRaises(ApiFieldError, resource.post_list, request)
+        try:
+            resource.post_list(request)
+        except ImmediateHttpResponse as resp:
+            self.assertEqual(resp.response.status_code, 400)
+        else:
+            self.fail("post_list should raise an ImmediateHttpResponse error")
         # self.assertEqual(resp.status_code, 201)
         self.assertEqual(User.objects.get(id=self.user.id).username, 'testy_mctesterson',
                          "User resource is GET-only and so should not be updatable")

@@ -786,7 +786,11 @@ class Resource(object):
             if method:
                 bundle = method(bundle)
             if field_object.attribute:
-                value = field_object.hydrate(bundle)
+                try:
+                    value = field_object.hydrate(bundle)
+                except fields.ApiFieldError as e:
+                    bundle.errors[field_name] = e
+                    continue
 
                 # NOTE: We only get back a bundle when it is related field.
                 if isinstance(value, Bundle) and value.errors.get(field_name):
