@@ -177,8 +177,9 @@ class Resource(object):
 
     def __init__(self, api_name=None):
         self.fields = deepcopy(self.base_fields)
-
         self.api_name = api_name or self._meta.api_name
+        for field in self.fields.values():
+            field.api_name = self.api_name
 
     def __getattr__(self, name):
         if name in self.fields:
