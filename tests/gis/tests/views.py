@@ -1,6 +1,8 @@
 from django.http import HttpRequest
 from testcases import TestCaseWithFixture as TestCase
 import json
+import django
+django18 = django.VERSION[1] <= 8
 
 
 class ViewsTestCase(TestCase):
@@ -39,7 +41,7 @@ class ViewsTestCase(TestCase):
 
         resp = self.client.post('/api/v1/geonotes/', data=post_data, content_type='application/json')
         self.assertEqual(resp.status_code, 201)
-        self.assertEqual(resp['location'], 'http://testserver/api/v1/geonotes/4/')
+        self.assertEqual(resp['location'], '{}/api/v1/geonotes/4/'.format("http://testserver" if django18 else ""))
 
         # make sure posted object exists
         resp = self.client.get('/api/v1/geonotes/4/', data={'format': 'json'})

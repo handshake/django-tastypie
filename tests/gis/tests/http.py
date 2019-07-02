@@ -2,7 +2,8 @@ import httplib
 from urllib import quote
 from testcases import TestServerTestCase
 import json
-
+import django
+django18 = django.VERSION[1] <= 8
 
 class HTTPTestCase(TestServerTestCase):
     def setUp(self):
@@ -68,7 +69,7 @@ class HTTPTestCase(TestServerTestCase):
         connection.request('POST', '/api/v1/geonotes/', body=post_data, headers={'Accept': 'application/json', 'Content-type': 'application/json'})
         response = connection.getresponse()
         self.assertEqual(response.status, 201)
-        self.assertEqual(dict(response.getheaders())['location'], 'http://localhost:8001/api/v1/geonotes/4/')
+        self.assertEqual(dict(response.getheaders())['location'], '{}/api/v1/geonotes/4/'.format("http://localhost:8001" if django18 else ""))
 
         # make sure posted object exists
         connection.request('GET', '/api/v1/geonotes/4/', headers={'Accept': 'application/json'})
@@ -94,7 +95,7 @@ class HTTPTestCase(TestServerTestCase):
         connection.request('POST', '/api/v1/geonotes/', body=post_data, headers={'Accept': 'application/json', 'Content-type': 'application/json'})
         response = connection.getresponse()
         self.assertEqual(response.status, 201)
-        self.assertEqual(dict(response.getheaders())['location'], 'http://localhost:8001/api/v1/geonotes/4/')
+        self.assertEqual(dict(response.getheaders())['location'], '{}/api/v1/geonotes/4/'.format("http://localhost:8001" if django18 else ""))
 
         # make sure posted object exists
         connection.request('GET', '/api/v1/geonotes/4/', headers={'Accept': 'application/json'})
@@ -117,7 +118,7 @@ class HTTPTestCase(TestServerTestCase):
         connection.request('POST', '/api/v1/geonotes/', body=post_data, headers={'Accept': 'application/xml', 'Content-type': 'application/xml'})
         response = connection.getresponse()
         self.assertEqual(response.status, 201)
-        self.assertEqual(dict(response.getheaders())['location'], 'http://localhost:8001/api/v1/geonotes/4/')
+        self.assertEqual(dict(response.getheaders())['location'], '{}/api/v1/geonotes/4/'.format("http://localhost:8001" if django18 else ""))
 
         # make sure posted object exists
         connection.request('GET', '/api/v1/geonotes/4/', headers={'Accept': 'application/json'})
