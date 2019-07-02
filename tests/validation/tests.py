@@ -170,7 +170,7 @@ class PutListNestResouceValidationTestCase(TestCase):
     def test_valid_data(self):
         data = json.dumps({'objects' : [
             {
-                'pk' : 1,
+                'id' : 1,
                 'title' : 'Test Title',
                 'slug' : 'test-title',
                 'content' : 'This is the content',
@@ -178,7 +178,7 @@ class PutListNestResouceValidationTestCase(TestCase):
                 'user' : {'pk' : 1}
             },
             {
-                'pk' : 2,
+                'id' : 2,
                 'title' : 'Test Title',
                 'slug' : 'test-title',
                 'content' : 'This is the content',
