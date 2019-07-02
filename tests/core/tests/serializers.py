@@ -4,7 +4,7 @@ import yaml
 from decimal import Decimal
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-from testcases import TestCaseWithFixture as TestCase
+from django.test.testcases import TestCase
 from tastypie import fields
 from tastypie.serializers import Serializer
 from tastypie.resources import ModelResource

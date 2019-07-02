@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django.http import HttpRequest
-from testcases import TestCaseWithFixture as TestCase
+from django.test.testcases import TestCase
 from tastypie.api import Api
 from tastypie.exceptions import NotRegistered, BadRequest
 from tastypie.resources import Resource, ModelResource

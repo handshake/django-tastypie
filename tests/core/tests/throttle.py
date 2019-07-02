@@ -1,6 +1,6 @@
 import time
 from django.core.cache import cache
-from testcases import TestCaseWithFixture as TestCase
+from django.test.testcases import TestCase
 from tastypie.models import ApiAccess
 from tastypie.throttle import BaseThrottle, CacheThrottle, CacheDBThrottle
 

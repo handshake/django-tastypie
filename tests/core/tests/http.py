@@ -1,5 +1,5 @@
 # Basically just a sanity check to make sure things don't change from underneath us.
-from testcases import TestCaseWithFixture as TestCase
+from django.test.testcases import TestCase
 from tastypie.http import *
 
 
