@@ -14,7 +14,7 @@ class UserResource(ModelResource):
 
 
 class NoteResource(ModelResource):
-    author = fields.ForeignKey(UserResource, 'author')
+    author = fields.ForeignKey(UserResource, 'author', null=True)
 
     class Meta:
         resource_name = 'notes'
