@@ -17,7 +17,7 @@ import json
 from tastypie.authentication import BasicAuthentication
 from tastypie.authorization import Authorization
 from tastypie.bundle import Bundle
-from tastypie.exceptions import InvalidFilterError, InvalidSortError, ImmediateHttpResponse, BadRequest, NotFound
+from tastypie.exceptions import InvalidFilterError, InvalidSortError, ImmediateHttpResponse, BadRequest, NotFound, ApiFieldError
 from tastypie import fields
 from tastypie.paginator import Paginator
 from tastypie.resources import Resource, ModelResource, ALL, ALL_WITH_RELATIONS, convert_post_to_put, convert_post_to_patch
@@ -3254,7 +3254,7 @@ class ModelResourceTestCase(TestCase):
             # ``None`` to a required FK.
             hydrated1 = nmbr.full_hydrate(bundle_1)
             self.fail()
-        except ValueError:
+        except ApiFieldError:
             pass
 
         # So we introduced ``blank=True``.
