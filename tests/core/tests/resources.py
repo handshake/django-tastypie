@@ -3257,7 +3257,7 @@ class ModelResourceTestCase(TestCase):
             except ObjectDoesNotExist:
                 pass
         else:
-            with self.assertRaises(ValueError):
+            with self.assertRaises(fields.ApiFieldError):
                 # This is where things blow up, because you can't assign
                 # ``None`` to a required FK.
                 hydrated1 = nmbr.full_hydrate(bundle_1)
