@@ -2,6 +2,7 @@ import base64
 import os
 import time
 import warnings
+import django
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser, User
 from django.http import HttpRequest
@@ -119,9 +120,14 @@ class BasicAuthenticationTestCase(TestCase):
         bob_doe.set_password('pass')
         bob_doe.save()
         request.META['HTTP_AUTHORIZATION'] = 'Basic %s' % base64.b64encode('bobdoe:pass')
-        self.assertFalse(auth.is_authenticated(request))
+        auth_res = auth.is_authenticated(request)
+        # is_authenticated() returns HttpUnauthorized for inactive users in Django >= 1.10, False for < 1.10
+        self.assertTrue(auth_res is False or isinstance(auth_res, HttpUnauthorized))
 
     def test_check_active_false(self):
+        if django.VERSION >= (1, 10):
+            # Authenticating inactive users via ModelUserBackend not supported for Django >= 1.10"
+            return
         auth = BasicAuthentication(require_active=False)
         request = HttpRequest()
 
@@ -213,6 +219,9 @@ class ApiKeyAuthenticationTestCase(TestCase):
         self.assertFalse(auth.is_authenticated(request))
 
     def test_check_active_false(self):
+        if django.VERSION >= (1, 10):
+            # Authenticating inactive users via ModelUserBackend not supported for Django >= 1.10"
+            return
         auth = BasicAuthentication(require_active=False)
         request = HttpRequest()
 
@@ -367,6 +376,9 @@ class DigestAuthenticationTestCase(TestCase):
         self.assertFalse(auth_request)
 
     def test_check_active_false(self):
+        if django.VERSION >= (1, 10):
+            # Authenticating inactive users via ModelUserBackend not supported for Django >= 1.10"
+            return
         auth = DigestAuthentication(require_active=False)
         request = HttpRequest()
 
