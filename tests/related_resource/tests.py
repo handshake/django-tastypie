@@ -222,6 +222,6 @@ class RelatedPatchTestCase(TestCase):
         request._raw_post_data = request._body = json.dumps(data)
         self.assertEqual(cat2.name, 'Child')
         resp = resource.patch_detail(request, pk=cat2.pk)
-        self.assertEqual(resp.status_code, 202)
+        self.assertEqual(resp.status_code, 204)
         cat2 = Category.objects.get(pk=2)
         self.assertEqual(cat2.name, 'Kid')
