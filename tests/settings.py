@@ -29,6 +29,8 @@ INSTALLED_APPS = [
     'tastypie',
 ]
 
+MIDDLEWARE_CLASSES = []
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 CACHE_BACKEND = 'locmem://'
