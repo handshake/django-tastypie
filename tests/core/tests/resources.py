@@ -8,7 +8,6 @@ from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.core.exceptions import FieldError, MultipleObjectsReturned
 from django.core import mail
-from django.core.urlresolvers import reverse
 from django import forms
 from django.http import HttpRequest, QueryDict, Http404
 from django.test.testcases import TestCase
@@ -19,6 +18,7 @@ from tastypie.authorization import Authorization
 from tastypie.bundle import Bundle
 from tastypie.exceptions import InvalidFilterError, InvalidSortError, ImmediateHttpResponse, BadRequest, NotFound, ApiFieldError
 from tastypie import fields
+from django.core.urlresolvers import reverse
 from tastypie.paginator import Paginator
 from tastypie.resources import Resource, ModelResource, ALL, ALL_WITH_RELATIONS, convert_post_to_put, convert_post_to_patch
 from tastypie.serializers import Serializer

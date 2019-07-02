@@ -1,6 +1,6 @@
 from django.conf import settings
-from django.core.urlresolvers import reverse, NoReverseMatch
 from django.http import HttpRequest
+from tastypie.compat import reverse, NoReverseMatch
 from testcases import TestCaseWithFixture as TestCase
 import json
 #settings.DEBUG = True
