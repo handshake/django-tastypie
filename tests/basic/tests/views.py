@@ -4,7 +4,7 @@ from django.test import Client
 from testcases import TestCaseWithFixture as TestCase
 import json
 import django
-django18 = django.VERSION[1] <= 8
+django18 = django.VERSION < (1, 9)
 
 class ViewsTestCase(TestCase):
     def test_gets(self):

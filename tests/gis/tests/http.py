@@ -3,7 +3,7 @@ from urllib import quote
 from testcases import TestServerTestCase
 import json
 import django
-django18 = django.VERSION[1] <= 8
+django18 = django.VERSION < (1, 9)
 
 class HTTPTestCase(TestServerTestCase):
     def setUp(self):
