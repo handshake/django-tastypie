@@ -6,6 +6,8 @@ INSTALLED_APPS.append('oauth_provider')
 ROOT_URLCONF = 'core.tests.api_urls'
 MEDIA_URL = 'http://localhost:8080/media/'
 
+ALLOWED_HOSTS = ['testsuite', 'example.com']
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,

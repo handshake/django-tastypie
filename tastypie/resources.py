@@ -5,7 +5,6 @@ import django
 from django.conf import settings
 from django.conf.urls import url
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned, ValidationError
-from django.core.urlresolvers import NoReverseMatch, reverse, resolve, Resolver404, get_script_prefix
 from django.db import transaction
 from django.db.models.sql.constants import QUERY_TERMS
 from django.http import HttpResponse, HttpResponseNotFound, Http404
@@ -14,6 +13,7 @@ from tastypie.authentication import Authentication
 from tastypie.authorization import ReadOnlyAuthorization
 from tastypie.bundle import Bundle
 from tastypie.cache import NoCache
+from tastypie.compat import NoReverseMatch, reverse, resolve, Resolver404, get_script_prefix
 from tastypie.constants import ALL, ALL_WITH_RELATIONS
 from tastypie.exceptions import NotFound, BadRequest, InvalidFilterError, HydrationError, InvalidSortError, ImmediateHttpResponse
 from tastypie import fields
@@ -177,8 +177,9 @@ class Resource(object):
 
     def __init__(self, api_name=None):
         self.fields = deepcopy(self.base_fields)
-
         self.api_name = api_name or self._meta.api_name
+        for field in self.fields.values():
+            field.api_name = self.api_name
 
     def __getattr__(self, name):
         if name in self.fields:
@@ -785,7 +786,11 @@ class Resource(object):
             if method:
                 bundle = method(bundle)
             if field_object.attribute:
-                value = field_object.hydrate(bundle)
+                try:
+                    value = field_object.hydrate(bundle)
+                except fields.ApiFieldError as e:
+                    bundle.errors[field_name] = e
+                    continue
 
                 # NOTE: We only get back a bundle when it is related field.
                 if isinstance(value, Bundle) and value.errors.get(field_name):
@@ -804,8 +809,9 @@ class Resource(object):
                         elif field_object.null:
 
                             # Figure out if we're setting the reverse side of a 1:1 relationship
-                            orm_field, _, direct, _ = \
-                                bundle.obj._meta.get_field_by_name( field_object.attribute )
+
+                            field = bundle.obj._meta.get_field(field_object.attribute)
+                            direct = not field.auto_created or field.Concrete
 
                             is_setting_rev_1to1 = not direct and \
                                                   orm_field.field.rel and \

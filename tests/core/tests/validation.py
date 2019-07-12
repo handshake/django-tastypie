@@ -1,6 +1,6 @@
 from django.core.exceptions import ImproperlyConfigured
 from django import forms
-from testcases import TestCaseWithFixture as TestCase
+from django.test.testcases import TestCase
 from tastypie.bundle import Bundle
 from tastypie.validation import Validation, FormValidation, CleanedDataFormValidation
 

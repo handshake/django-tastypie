@@ -1,5 +1,5 @@
 from django.http import HttpRequest
-from testcases import TestCaseWithFixture as TestCase
+from django.test.testcases import TestCase
 from tastypie.serializers import Serializer
 from tastypie.utils.mime import determine_format, build_content_type
 

@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import include, url
 from tastypie.api import Api
 from content_gfk.api.resources import NoteResource, QuoteResource, \
     RatingResource, DefinitionResource

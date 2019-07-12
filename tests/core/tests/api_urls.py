@@ -1,11 +1,13 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import include, url
 from core.tests.api import Api, NoteResource, UserResource
+from core.tests.resources import SubjectResource
 
 
 api = Api()
 api.register(NoteResource())
 api.register(UserResource())
+api.register(SubjectResource())
 
-urlpatterns = patterns('',
-    (r'^api/', include(api.urls)),
-)
+urlpatterns = [
+    url(r'^api/', include(api.urls)),
+]

@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import include, url
 from tastypie.api import Api
 from related_resource.api.resources import NoteResource, UserResource, \
         CategoryResource, TagResource, TaggableTagResource, TaggableResource, \

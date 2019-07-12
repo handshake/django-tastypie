@@ -3,7 +3,8 @@ from django.http import HttpRequest
 from django.test import Client
 from testcases import TestCaseWithFixture as TestCase
 import json
-
+import django
+django18 = django.VERSION < (1, 9)
 
 class ViewsTestCase(TestCase):
     def test_gets(self):
@@ -45,7 +46,7 @@ class ViewsTestCase(TestCase):
 
         resp = self.client.post('/api/v1/notes/', data=post_data, content_type='application/json')
         self.assertEqual(resp.status_code, 201)
-        self.assertEqual(resp['location'], 'http://testserver/api/v1/notes/3/')
+        self.assertEqual(resp['location'], '{}/api/v1/notes/3/'.format("http://testserver" if django18 else ""))
 
         # make sure posted object exists
         resp = self.client.get('/api/v1/notes/3/', data={'format': 'json'})
@@ -80,7 +81,7 @@ class ViewsTestCase(TestCase):
 
         resp = self.client.post('/api/v1/notes/', data=post_data, content_type='application/json')
         self.assertEqual(resp.status_code, 400)
-        self.assertEqual(resp.content, "Could not find the provided object via resource URI '/api/v1/users/9001/'.")
+        self.assertEqual(resp.content, '{"user": "Could not find the provided object via resource URI \'/api/v1/users/9001/\'."}')
 
     def test_options(self):
         resp = self.client.options('/api/v1/notes/')
