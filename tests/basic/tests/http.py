@@ -1,7 +1,8 @@
 import httplib
 from testcases import TestServerTestCase
 import json
-
+import django
+django18 = django.VERSION < (1, 9)
 
 class HTTPTestCase(TestServerTestCase):
     def setUp(self):
@@ -29,7 +30,7 @@ class HTTPTestCase(TestServerTestCase):
         connection.close()
         data = response.read()
         self.assertEqual(response.status, 200)
-        self.assertEqual(data, '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<response><notes type="hash"><list_endpoint>/api/v1/notes/</list_endpoint><schema>/api/v1/notes/schema/</schema></notes><cached_users type="hash"><list_endpoint>/api/v1/cached_users/</list_endpoint><schema>/api/v1/cached_users/schema/</schema></cached_users><users type="hash"><list_endpoint>/api/v1/users/</list_endpoint><schema>/api/v1/users/schema/</schema></users><public_cached_users type="hash"><list_endpoint>/api/v1/public_cached_users/</list_endpoint><schema>/api/v1/public_cached_users/schema/</schema></public_cached_users><private_cached_users type="hash"><list_endpoint>/api/v1/private_cached_users/</list_endpoint><schema>/api/v1/private_cached_users/schema/</schema></private_cached_users></response>')
+        self.assertEqual(data, '<?xml version=\'1.0\' encoding=\'utf-8\'?>\n<response><cached_users type="hash"><list_endpoint>/api/v1/cached_users/</list_endpoint><schema>/api/v1/cached_users/schema/</schema></cached_users><notes type="hash"><list_endpoint>/api/v1/notes/</list_endpoint><schema>/api/v1/notes/schema/</schema></notes><private_cached_users type="hash"><list_endpoint>/api/v1/private_cached_users/</list_endpoint><schema>/api/v1/private_cached_users/schema/</schema></private_cached_users><public_cached_users type="hash"><list_endpoint>/api/v1/public_cached_users/</list_endpoint><schema>/api/v1/public_cached_users/schema/</schema></public_cached_users><users type="hash"><list_endpoint>/api/v1/users/</list_endpoint><schema>/api/v1/users/schema/</schema></users></response>')
 
     def test_get_list(self):
         connection = self.get_connection()
@@ -45,7 +46,7 @@ class HTTPTestCase(TestServerTestCase):
         connection.request('POST', '/api/v1/notes/', body=post_data, headers={'Accept': 'application/json', 'Content-type': 'application/json'})
         response = connection.getresponse()
         self.assertEqual(response.status, 201)
-        self.assertEqual(dict(response.getheaders())['location'], 'http://localhost:8001/api/v1/notes/3/')
+        self.assertEqual(dict(response.getheaders())['location'], '{}/api/v1/notes/3/'.format("http://localhost:8001" if django18 else ""))
 
         # make sure posted object exists
         connection.request('GET', '/api/v1/notes/3/', headers={'Accept': 'application/json'})

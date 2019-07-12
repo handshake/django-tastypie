@@ -1,7 +1,8 @@
 from django.http import HttpRequest
 from testcases import TestCaseWithFixture as TestCase
 import json
-
+import django
+django18 = django.VERSION < (1, 9)
 
 class ViewsTestCase(TestCase):
     def test_gets(self):
@@ -81,7 +82,7 @@ class ViewsTestCase(TestCase):
 
         resp = self.client.post('/api/v1/products/', data=post_data, content_type='application/json')
         self.assertEqual(resp.status_code, 201)
-        self.assertEqual(resp['location'], 'http://testserver/api/v1/products/12345/')
+        self.assertEqual(resp['location'], '{}/api/v1/products/12345/'.format("http://testserver" if django18 else ""))
 
         # make sure posted object exists
         resp = self.client.get('/api/v1/products/12345/', data={'format': 'json'})
@@ -97,7 +98,7 @@ class ViewsTestCase(TestCase):
 
         resp = self.client.post('/api/v1/products/', data=post_data, content_type='application/json')
         self.assertEqual(resp.status_code, 201)
-        self.assertEqual(resp['location'], 'http://testserver/api/v1/products/12345ABC/')
+        self.assertEqual(resp['location'], '{}/api/v1/products/12345ABC/'.format("http://testserver" if django18 else ""))
 
         # make sure posted object exists
         resp = self.client.get('/api/v1/products/12345ABC/', data={'format': 'json'})
@@ -113,7 +114,7 @@ class ViewsTestCase(TestCase):
 
         resp = self.client.post('/api/v1/products/', data=post_data, content_type='application/json')
         self.assertEqual(resp.status_code, 201)
-        self.assertEqual(resp['location'], 'http://testserver/api/v1/products/WK12345/')
+        self.assertEqual(resp['location'], '{}/api/v1/products/WK12345/'.format("http://testserver" if django18 else ""))
 
         # make sure posted object exists
         resp = self.client.get('/api/v1/products/WK12345/', data={'format': 'json'})
@@ -129,7 +130,7 @@ class ViewsTestCase(TestCase):
 
         resp = self.client.post('/api/v1/products/', data=post_data, content_type='application/json')
         self.assertEqual(resp.status_code, 201)
-        self.assertEqual(resp['location'], 'http://testserver/api/v1/products/76123/03/')
+        self.assertEqual(resp['location'], '{}/api/v1/products/76123/03/'.format("http://testserver" if django18 else ""))
 
         # make sure posted object exists
         resp = self.client.get('/api/v1/products/76123/03/', data={'format': 'json'})
@@ -144,7 +145,7 @@ class ViewsTestCase(TestCase):
 
         resp = self.client.post('/api/v1/products/', data=post_data, content_type='application/json')
         self.assertEqual(resp.status_code, 201)
-        self.assertEqual(resp['location'], 'http://testserver/api/v1/products/WS65150/02/')
+        self.assertEqual(resp['location'], '{}/api/v1/products/WS65150/02/'.format("http://testserver" if django18 else ""))
 
         # make sure posted object exists
         resp = self.client.get('/api/v1/products/WS65150/02/', data={'format': 'json'})

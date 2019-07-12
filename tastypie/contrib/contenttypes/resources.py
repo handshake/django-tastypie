@@ -1,6 +1,6 @@
 from tastypie.resources import ModelResource
 from tastypie.exceptions import NotFound
-from django.core.urlresolvers import resolve, Resolver404, get_script_prefix
+from tastypie.compat import resolve, Resolver404, get_script_prefix
 
 
 class GenericResource(ModelResource):

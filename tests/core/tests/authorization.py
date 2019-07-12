@@ -42,7 +42,7 @@ class NotAModelResource(Resource):
 
 
 class AuthorizationTestCase(TestCase):
-    fixtures = ['note_testdata']
+    fixtures = ['note_testdata.json']
 
     def test_no_rules(self):
         request = HttpRequest()
@@ -61,7 +61,7 @@ class AuthorizationTestCase(TestCase):
             self.assertFalse(ReadOnlyNoteResource()._meta.authorization.is_authorized(request))
 
 class DjangoAuthorizationTestCase(TestCase):
-    fixtures = ['note_testdata']
+    fixtures = ['note_testdata.json']
 
     def setUp(self):
         self.add = Permission.objects.get_by_natural_key('add_note', 'core', 'note')
@@ -139,16 +139,17 @@ class DjangoAuthorizationTestCase(TestCase):
 
         # Not enough.
         request.user.user_permissions.add(self.add)
+        request.user.refresh_from_db()
         self.assertFalse(DjangoNoteResource()._meta.authorization.is_authorized(request))
 
         # Still not enough.
         request.user.user_permissions.add(self.change)
+        request.user.refresh_from_db()
         self.assertFalse(DjangoNoteResource()._meta.authorization.is_authorized(request))
 
         # Much better.
         request.user.user_permissions.add(self.delete)
-        # Nuke the perm cache. :/
-        del request.user._perm_cache
+        request.user = User.objects.get(pk=self.user.pk)
         self.assertTrue(DjangoNoteResource()._meta.authorization.is_authorized(request))
 
     def test_unrecognized_method(self):

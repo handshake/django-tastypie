@@ -1,7 +1,8 @@
 import httplib
 import json
 from testcases import TestServerTestCase
-
+import django
+django18 = django.VERSION < (1, 9)
 
 class HTTPTestCase(TestServerTestCase):
     def setUp(self):
@@ -98,17 +99,17 @@ class HTTPTestCase(TestServerTestCase):
         connection.request('POST', '/api/v1/products/', body=post_data, headers={'Accept': 'application/json', 'Content-type': 'application/json'})
         response = connection.getresponse()
         self.assertEqual(response.status, 201)
-        self.assertEqual(dict(response.getheaders())['location'], 'http://localhost:8001/api/v1/products/A76124/03/')
-    
+        self.assertEqual(dict(response.getheaders())['location'], '{}/api/v1/products/A76124/03/'.format("http://localhost:8001" if django18 else ""))
+
         # make sure posted object exists
         connection.request('GET', '/api/v1/products/A76124/03/', headers={'Accept': 'application/json'})
         response = connection.getresponse()
         connection.close()
-    
+
         self.assertEqual(response.status, 200)
-    
+
         data = response.read()
         obj = json.loads(data)
-    
+
         self.assertEqual(obj['name'], 'Bigwheel XXL')
         self.assertEqual(obj['artnr'], 'A76124/03')
